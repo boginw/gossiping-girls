@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+
+const int N = 4;
+typedef int[0, N - 1] id_t;
+typedef int[0, 1 &lt;&lt; N] secrets_t;
+
+chan call[N], share[N][1 &lt;&lt; N+1];</declaration>
+	<template>
+		<name x="5" y="5">Girl</name>
+		<parameter>const id_t id</parameter>
+		<declaration>// Place local declarations here.
+
+// States:
+// Idle vs. Call
+// Emit vs. Receive
+
+// Transatcion
+// Contact! Contact?
+
+// Data Models:
+// ID 
+// Secret
+
+secrets_t secrets = 1 &lt;&lt; id;
+clock x;
+
+id_t s;
+
+id_t next(id_t id) {
+    return id == N - 1 ? id - 1 : id + 1;
+}
+
+id_t prev(id_t id) {
+    return id == 0 ? id + 1 : id - 1;
+}
+</declaration>
+		<location id="id0" x="-1632" y="-663">
+			<name x="-1674" y="-654">Idle</name>
+		</location>
+		<location id="id1" x="-1317" y="-688">
+			<name x="-1283" y="-697">Call_Next</name>
+		</location>
+		<location id="id2" x="-1317" y="-816">
+			<name x="-1327" y="-850">Emit_Next</name>
+		</location>
+		<location id="id3" x="-1317" y="-535">
+			<name x="-1300" y="-552">Called_Receive</name>
+		</location>
+		<location id="id4" x="-1317" y="-628">
+			<name x="-1292" y="-637">Called</name>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-1547" y="-560">share[id][secrets]!</label>
+			<nail x="-1632" y="-535"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="select" x="-1521" y="-833">e: secrets_t</label>
+			<label kind="synchronisation" x="-1419" y="-833">share[s][e]?</label>
+			<label kind="assignment" x="-1623" y="-833">secrets |= e</label>
+			<nail x="-1632" y="-816"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-1309" y="-765">share[s][secrets]!</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id3"/>
+			<label kind="select" x="-1300" y="-578">e: secrets_t</label>
+			<label kind="synchronisation" x="-1300" y="-595">share[id][e]?</label>
+			<label kind="assignment" x="-1300" y="-612">secrets |= e</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-1521" y="-637">call[id]?</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="select" x="-1581" y="-705">e: int[prev(id), next(id)]</label>
+			<label kind="guard" x="-1581" y="-739">secrets != 15</label>
+			<label kind="synchronisation" x="-1581" y="-722">call[e]!</label>
+			<label kind="assignment" x="-1581" y="-756">s = e</label>
+		</transition>
+	</template>
+	<system>system Girl;</system>
+	<queries>
+		<query>
+			<formula>E&lt;&gt; forall(i: id_t) Girl(i).secrets == 15</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>A[] not deadlock</formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>
