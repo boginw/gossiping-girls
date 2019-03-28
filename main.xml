@@ -1,31 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
 <nta>
-	<declaration>// Place global declarations here.
+	<declaration>const int N = 4;
+const int secret_max = 1 &lt;&lt; N;
 
-const int N = 4;
 typedef int[0, N - 1] id_t;
-typedef int[0, 1 &lt;&lt; N] secrets_t;
+typedef int[0, secret_max] secrets_t;
 
-chan call[N], share[N][1 &lt;&lt; N+1];</declaration>
+chan call[N], share[N][secret_max + 1];</declaration>
 	<template>
 		<name x="5" y="5">Girl</name>
 		<parameter>const id_t id</parameter>
-		<declaration>// Place local declarations here.
-
-// States:
-// Idle vs. Call
-// Emit vs. Receive
-
-// Transatcion
-// Contact! Contact?
-
-// Data Models:
-// ID 
-// Secret
-
-secrets_t secrets = 1 &lt;&lt; id;
-clock x;
+		<declaration>secrets_t secrets = 1 &lt;&lt; id;
 
 id_t s;
 
