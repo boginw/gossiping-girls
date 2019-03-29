@@ -9,7 +9,7 @@ typedef int[0, secret_max] secrets_t;
 
 chan call[N], share[N][secret_max + 1];</declaration>
 	<template>
-		<name x="5" y="5">Girl</name>
+		<name x="5" y="5">LinearGirl</name>
 		<parameter>const id_t id</parameter>
 		<declaration>secrets_t secrets = 1 &lt;&lt; id;
 
@@ -79,10 +79,160 @@ id_t prev(id_t id) {
 			<label kind="assignment" x="-1581" y="-756">s = e</label>
 		</transition>
 	</template>
-	<system>system Girl;</system>
+	<template>
+		<name>CircularGirl</name>
+		<parameter>const id_t id</parameter>
+		<declaration>secrets_t secrets = 1 &lt;&lt; id;
+
+id_t s;
+
+id_t next(id_t id) {
+    return (id + 1) % N;
+}
+
+id_t prev(id_t id) {
+    return (N - 1 + id) % N;
+}
+</declaration>
+		<location id="id5" x="-348" y="-110">
+			<name x="-391" y="-119">Idle</name>
+		</location>
+		<location id="id6" x="-30" y="-113">
+			<name x="4" y="-122">Call_Next</name>
+		</location>
+		<location id="id7" x="-30" y="-241">
+			<name x="-40" y="-275">Emit_Next</name>
+		</location>
+		<location id="id8" x="-30" y="40">
+			<name x="-13" y="23">Called_Receive</name>
+		</location>
+		<location id="id9" x="-30" y="-53">
+			<name x="-5" y="-62">Called</name>
+		</location>
+		<init ref="id5"/>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="-260" y="15">share[id][secrets]!</label>
+			<nail x="-345" y="40"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id5"/>
+			<label kind="select" x="-234" y="-258">e: secrets_t</label>
+			<label kind="synchronisation" x="-132" y="-258">share[s][e]?</label>
+			<label kind="assignment" x="-336" y="-258">secrets |= e</label>
+			<nail x="-348" y="-238"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="-22" y="-190">share[s][secrets]!</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id8"/>
+			<label kind="select" x="-13" y="-3">e: secrets_t</label>
+			<label kind="synchronisation" x="-13" y="-20">share[id][e]?</label>
+			<label kind="assignment" x="-13" y="-37">secrets |= e</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="-234" y="-62">call[id]?</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="select" x="-294" y="-130">e: int[prev(id), next(id)]</label>
+			<label kind="guard" x="-294" y="-164">secrets != 15</label>
+			<label kind="synchronisation" x="-294" y="-147">call[e]!</label>
+			<label kind="assignment" x="-294" y="-181">s = e</label>
+		</transition>
+	</template>
+	<template>
+		<name>AnyGirl</name>
+		<parameter>const id_t id</parameter>
+		<declaration>secrets_t secrets = 1 &lt;&lt; id;
+
+id_t s;
+
+id_t next(id_t id) {
+    return (id + 1) % N;
+}
+
+id_t prev(id_t id) {
+    return (N - 1 + id) % N;
+}
+</declaration>
+		<location id="id10" x="8" y="0">
+			<name x="-42" y="-8">Idle</name>
+		</location>
+		<location id="id11" x="323" y="-25">
+			<name x="357" y="-34">Call_Next</name>
+		</location>
+		<location id="id12" x="323" y="-153">
+			<name x="313" y="-187">Emit_Next</name>
+		</location>
+		<location id="id13" x="323" y="128">
+			<name x="340" y="111">Called_Receive</name>
+		</location>
+		<location id="id14" x="323" y="35">
+			<name x="348" y="26">Called</name>
+		</location>
+		<init ref="id10"/>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="93" y="103">share[id][secrets]!</label>
+			<nail x="8" y="128"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id10"/>
+			<label kind="select" x="119" y="-170">e: secrets_t</label>
+			<label kind="synchronisation" x="221" y="-170">share[s][e]?</label>
+			<label kind="assignment" x="17" y="-170">secrets |= e</label>
+			<nail x="8" y="-153"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="331" y="-102">share[s][secrets]!</label>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id13"/>
+			<label kind="select" x="340" y="85">e: secrets_t</label>
+			<label kind="synchronisation" x="340" y="68">share[id][e]?</label>
+			<label kind="assignment" x="340" y="51">secrets |= e</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="119" y="26">call[id]?</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id11"/>
+			<label kind="select" x="59" y="-42">e: int[0, N - 1]</label>
+			<label kind="guard" x="59" y="-76">secrets != 15 &amp;&amp; e != id</label>
+			<label kind="synchronisation" x="59" y="-59">call[e]!</label>
+			<label kind="assignment" x="59" y="-93">s = e</label>
+		</transition>
+	</template>
+	<system>system AnyGirl;</system>
 	<queries>
 		<query>
-			<formula>E&lt;&gt; forall(i: id_t) Girl(i).secrets == 15</formula>
+			<formula>E&lt;&gt; forall(i: id_t) LinearGirl(i).secrets == 15</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; forall(i: id_t) CircularGirl(i).secrets == 15</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; forall(i: id_t) AnyGirl(i).secrets == 15</formula>
 			<comment></comment>
 		</query>
 		<query>
