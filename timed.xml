@@ -2,19 +2,19 @@
 <!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
 <nta>
 	<declaration>const int N = 4;
-const int limit = 4;
+const int limit = 120;
 
+clock total_time;
 const int secret_max = (1 &lt;&lt; N) - 1;
 typedef int[0, N - 1] id_t;
 typedef int[0, secret_max + 1] secrets_t;
-
-int calls = 0;
 
 chan call[N], share[N][secret_max + 2];</declaration>
 	<template>
 		<name x="5" y="5">LinearGirl</name>
 		<parameter>const id_t id</parameter>
 		<declaration>secrets_t secrets = 1 &lt;&lt; id;
+clock x;
 
 id_t s;
 
@@ -52,6 +52,7 @@ id_t prev(id_t id) {
 			<source ref="id2"/>
 			<target ref="id0"/>
 			<label kind="select" x="-1521" y="-833">e: secrets_t</label>
+			<label kind="guard" x="-1614" y="-850">x == 60 &amp;&amp; total_time &lt;= limit</label>
 			<label kind="synchronisation" x="-1419" y="-833">share[s][e]?</label>
 			<label kind="assignment" x="-1623" y="-833">secrets |= e</label>
 			<nail x="-1632" y="-816"/>
@@ -77,15 +78,16 @@ id_t prev(id_t id) {
 			<source ref="id0"/>
 			<target ref="id1"/>
 			<label kind="select" x="-1581" y="-705">e: int[prev(id), next(id)]</label>
-			<label kind="guard" x="-1581" y="-739">secrets != secret_max &amp;&amp; calls != limit</label>
+			<label kind="guard" x="-1581" y="-739">secrets != secret_max</label>
 			<label kind="synchronisation" x="-1581" y="-722">call[e]!</label>
-			<label kind="assignment" x="-1581" y="-756">s = e, calls++</label>
+			<label kind="assignment" x="-1581" y="-756">s = e, x = 0</label>
 		</transition>
 	</template>
 	<template>
 		<name>CircularGirl</name>
 		<parameter>const id_t id</parameter>
 		<declaration>secrets_t secrets = 1 &lt;&lt; id;
+clock x;
 
 id_t s;
 
@@ -123,6 +125,7 @@ id_t prev(id_t id) {
 			<source ref="id7"/>
 			<target ref="id5"/>
 			<label kind="select" x="-234" y="-258">e: secrets_t</label>
+			<label kind="guard" x="-330" y="-273">x == 60 &amp;&amp; total_time &lt;= limit</label>
 			<label kind="synchronisation" x="-132" y="-258">share[s][e]?</label>
 			<label kind="assignment" x="-336" y="-258">secrets |= e</label>
 			<nail x="-348" y="-238"/>
@@ -148,15 +151,16 @@ id_t prev(id_t id) {
 			<source ref="id5"/>
 			<target ref="id6"/>
 			<label kind="select" x="-294" y="-130">e: int[prev(id), next(id)]</label>
-			<label kind="guard" x="-294" y="-164">secrets != secret_max &amp;&amp; calls != limit</label>
+			<label kind="guard" x="-294" y="-164">secrets != secret_max</label>
 			<label kind="synchronisation" x="-294" y="-147">call[e]!</label>
-			<label kind="assignment" x="-294" y="-181">s = e, calls++</label>
+			<label kind="assignment" x="-294" y="-181">s = e, x = 0</label>
 		</transition>
 	</template>
 	<template>
 		<name>AnyGirl</name>
 		<parameter>const id_t id</parameter>
 		<declaration>secrets_t secrets = 1 &lt;&lt; id;
+clock x;
 
 id_t s;
 
@@ -194,6 +198,7 @@ id_t prev(id_t id) {
 			<source ref="id12"/>
 			<target ref="id10"/>
 			<label kind="select" x="119" y="-170">e: secrets_t</label>
+			<label kind="guard" x="26" y="-187">x == 60 &amp;&amp; total_time &lt;= limit</label>
 			<label kind="synchronisation" x="221" y="-170">share[s][e]?</label>
 			<label kind="assignment" x="17" y="-170">secrets |= e</label>
 			<nail x="8" y="-153"/>
@@ -219,9 +224,9 @@ id_t prev(id_t id) {
 			<source ref="id10"/>
 			<target ref="id11"/>
 			<label kind="select" x="59" y="-42">e: int[0, N - 1]</label>
-			<label kind="guard" x="59" y="-76">secrets != secret_max &amp;&amp; e != id &amp;&amp; calls != limit</label>
+			<label kind="guard" x="59" y="-76">secrets != secret_max &amp;&amp; e != id</label>
 			<label kind="synchronisation" x="59" y="-59">call[e]!</label>
-			<label kind="assignment" x="59" y="-93">s = e, calls++</label>
+			<label kind="assignment" x="59" y="-93">s = e, x=0</label>
 		</transition>
 	</template>
 	<system>system CircularGirl;</system>
