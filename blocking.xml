@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>const int N = 5;
+const int limit = 359;
+
+bool active = false;
+
+clock total_time;
+const int secret_max = (1 &lt;&lt; N) - 1;
+typedef int[0, N - 1] id_t;
+typedef int[0, secret_max + 1] secrets_t;
+
+chan call[N], share[N][secret_max + 2];</declaration>
+	<template>
+		<name x="5" y="5">LinearGirl</name>
+		<parameter>const id_t id</parameter>
+		<declaration>secrets_t secrets = 1 &lt;&lt; id;
+clock x;
+
+id_t s;
+
+id_t next(id_t id) {
+    return id == N - 1 ? id - 1 : id + 1;
+}
+
+id_t prev(id_t id) {
+    return id == 0 ? id + 1 : id - 1;
+}
+</declaration>
+		<location id="id0" x="-1632" y="-663">
+			<name x="-1674" y="-654">Idle</name>
+		</location>
+		<location id="id1" x="-1317" y="-688">
+			<name x="-1283" y="-697">Call_Next</name>
+		</location>
+		<location id="id2" x="-1317" y="-816">
+			<name x="-1327" y="-850">Emit_Next</name>
+		</location>
+		<location id="id3" x="-1317" y="-535">
+			<name x="-1300" y="-552">Called_Receive</name>
+		</location>
+		<location id="id4" x="-1317" y="-628">
+			<name x="-1292" y="-637">Called</name>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-1547" y="-560">share[id][secrets]!</label>
+			<nail x="-1632" y="-535"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="select" x="-1521" y="-833">e: secrets_t</label>
+			<label kind="guard" x="-1614" y="-850">x == 60 &amp;&amp; total_time &lt;= limit</label>
+			<label kind="synchronisation" x="-1419" y="-833">share[s][e]?</label>
+			<label kind="assignment" x="-1623" y="-833">secrets |= e</label>
+			<nail x="-1632" y="-816"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-1309" y="-765">share[s][secrets]!</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id3"/>
+			<label kind="select" x="-1300" y="-578">e: secrets_t</label>
+			<label kind="synchronisation" x="-1300" y="-595">share[id][e]?</label>
+			<label kind="assignment" x="-1300" y="-612">secrets |= e</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-1521" y="-637">call[id]?</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="select" x="-1581" y="-705">e: int[prev(id), next(id)]</label>
+			<label kind="guard" x="-1581" y="-739">secrets != secret_max</label>
+			<label kind="synchronisation" x="-1581" y="-722">call[e]!</label>
+			<label kind="assignment" x="-1581" y="-756">s = e, x = 0</label>
+		</transition>
+	</template>
+	<template>
+		<name>CircularGirl</name>
+		<parameter>const id_t id</parameter>
+		<declaration>secrets_t secrets = 1 &lt;&lt; id;
+clock x;
+
+id_t s;
+
+id_t next(id_t id) {
+    return (id + 1) % N;
+}
+
+id_t prev(id_t id) {
+    return (N - 1 + id) % N;
+}
+</declaration>
+		<location id="id5" x="-348" y="-110">
+			<name x="-391" y="-119">Idle</name>
+		</location>
+		<location id="id6" x="-30" y="-113">
+			<name x="4" y="-122">Call_Next</name>
+		</location>
+		<location id="id7" x="-30" y="-241">
+			<name x="-40" y="-275">Emit_Next</name>
+		</location>
+		<location id="id8" x="-30" y="40">
+			<name x="-13" y="23">Called_Receive</name>
+		</location>
+		<location id="id9" x="-30" y="-53">
+			<name x="-5" y="-62">Called</name>
+		</location>
+		<init ref="id5"/>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="-260" y="15">share[id][secrets]!</label>
+			<nail x="-345" y="40"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id5"/>
+			<label kind="select" x="-234" y="-258">e: secrets_t</label>
+			<label kind="guard" x="-330" y="-273">x == 60 &amp;&amp; total_time &lt;= limit</label>
+			<label kind="synchronisation" x="-132" y="-258">share[s][e]?</label>
+			<label kind="assignment" x="-336" y="-258">secrets |= e</label>
+			<nail x="-348" y="-238"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="-22" y="-190">share[s][secrets]!</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id8"/>
+			<label kind="select" x="-13" y="-3">e: secrets_t</label>
+			<label kind="synchronisation" x="-13" y="-20">share[id][e]?</label>
+			<label kind="assignment" x="-13" y="-37">secrets |= e</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="-234" y="-62">call[id]?</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="select" x="-294" y="-130">e: int[prev(id), next(id)]</label>
+			<label kind="guard" x="-294" y="-164">secrets != secret_max</label>
+			<label kind="synchronisation" x="-294" y="-147">call[e]!</label>
+			<label kind="assignment" x="-294" y="-181">s = e, x = 0</label>
+		</transition>
+	</template>
+	<template>
+		<name>AnyGirl</name>
+		<parameter>const id_t id</parameter>
+		<declaration>secrets_t secrets = 1 &lt;&lt; id;
+clock x;
+
+id_t s;
+
+id_t next(id_t id) {
+    return (id + 1) % N;
+}
+
+id_t prev(id_t id) {
+    return (N - 1 + id) % N;
+}
+</declaration>
+		<location id="id10" x="8" y="0">
+			<name x="-42" y="-8">Idle</name>
+		</location>
+		<location id="id11" x="323" y="-25">
+			<name x="357" y="-34">Call_Next</name>
+		</location>
+		<location id="id12" x="323" y="-153">
+			<name x="313" y="-187">Emit_Next</name>
+		</location>
+		<location id="id13" x="323" y="128">
+			<name x="340" y="111">Called_Receive</name>
+		</location>
+		<location id="id14" x="323" y="35">
+			<name x="348" y="26">Called</name>
+		</location>
+		<init ref="id10"/>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="93" y="103">share[id][secrets]!</label>
+			<nail x="8" y="128"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id10"/>
+			<label kind="select" x="119" y="-170">e: secrets_t</label>
+			<label kind="guard" x="26" y="-187">x == 60 &amp;&amp; total_time &lt;= limit</label>
+			<label kind="synchronisation" x="221" y="-170">share[s][e]?</label>
+			<label kind="assignment" x="17" y="-153">secrets |= e, active = false</label>
+			<nail x="8" y="-153"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="331" y="-102">share[s][secrets]!</label>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id13"/>
+			<label kind="select" x="340" y="85">e: secrets_t</label>
+			<label kind="synchronisation" x="340" y="68">share[id][e]?</label>
+			<label kind="assignment" x="340" y="51">secrets |= e</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="119" y="26">call[id]?</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id11"/>
+			<label kind="select" x="59" y="-42">e: int[0, N - 1]</label>
+			<label kind="guard" x="59" y="-76">secrets != secret_max &amp;&amp; e != id &amp;&amp; active == false</label>
+			<label kind="synchronisation" x="59" y="-59">call[e]!</label>
+			<label kind="assignment" x="59" y="-93">s = e, x=0, active = true</label>
+		</transition>
+	</template>
+	<system>system AnyGirl;</system>
+	<queries>
+		<query>
+			<formula>E&lt;&gt; forall(i: id_t) LinearGirl(i).secrets == secret_max
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; forall(i: id_t) CircularGirl(i).secrets == secret_max
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; forall(i: id_t) AnyGirl(i).secrets == secret_max
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>A[] not deadlock
+			</formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>
